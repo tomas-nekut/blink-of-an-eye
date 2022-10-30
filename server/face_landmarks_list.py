@@ -111,6 +111,7 @@ class FaceLandmarksList():
         landmarks /= self.__norm_scale
         landmarks = self.__norm_rotation.apply(landmarks, inverse=True)
         self.__landmarks = landmarks
+        return self
 
     def get_normalized(self):
         if self.__normalized_landmarks is None:

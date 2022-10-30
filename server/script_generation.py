@@ -93,7 +93,11 @@ for (_,face_landmarks1),(_,face_landmarks2) in zip(det1,det2): #[::int(24/frame_
     
     
     #previous_face_landmarks = face_landmarks
+
+    #TODO error shoulk translate previous zeman (1 frame landmarks) works only because it saves normalized landmarks fromn 1. image
     zeman_face_landmarks.translate(vectors)
+    
+    
     #img = np.zeros(zeman.shape, dtype=np.uint8)
     #for (x,y,z) in zeman_face_landmarks.to_numpy():    
     #    #cv2.circle(img, (int(x),int(-z+700)), 1, (255, 255, 255), -1)
