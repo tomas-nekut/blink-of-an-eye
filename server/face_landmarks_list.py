@@ -14,38 +14,33 @@ import mediapipe as mp
 from scipy.spatial.transform import Rotation as R
 import cv2
 
-
 class FaceLandmarksDetector(mp.solutions.face_mesh.FaceMesh):
     def __init__(self, video_path=None, smoothing_cnt=5):
         super().__init__(static_image_mode=True, max_num_faces=1, refine_landmarks=True)
         if video_path != None:
             self.open(video_path)
         self.__smoothing_cnt = smoothing_cnt
+    
     def open(self, video_path):
         self.__cap = cv2.VideoCapture(video_path)
+    
     def __iter__(self):
         self.__cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         self.__landmarks = None
-        #print("iter")
         return self
+    
     def __next__(self):
         return self.next()
+    
     def next(self):
         if not self.__cap.isOpened():
             raise StopIteration()
         ret,frame = self.__cap.read()
         if not ret:
-            #print("stop")
             raise StopIteration()
-
-        #print("frame stats", frame.min(), " ", frame.max(), " ", frame.mean() )
-
         landmarks = self.__process_numpy(frame)
-
-        #print("landmarks:", landmarks.shape)
-
         landmarks = self.__smooth(landmarks)
-        return frame, FaceLandmarksList(landmarks)
+        return FaceLandmarksList(landmarks)
 
     def __smooth(self, landmarks):
         self.__push_back(landmarks)
@@ -83,15 +78,39 @@ class FaceLandmarksList():
     def __init__(self, landmarks):
         self.__landmarks = landmarks[:468]  # only mesh
         self.__normalized_landmarks = None
-        #self.mesh = self.__landmarks[:468]
-        #self.left_iris = self.__landmarks[468]
-        #self.right_iris = self.__landmarks[469]
 
     def __getitem__(self, index):
         return self.__landmarks[index]
     
     def copy(self):
         return FaceLandmarksList(self.__landmarks)
+
+    def get_left_eye_outline(self):
+        return self[[33,246,161,160,159,158,157,173,133,155,154,153,145,144,163,7],0:2].astype(np.int32)
+
+    def get_right_eye_outline(self):
+        return self[[362,398,384,385,386,387,388,466,263,249,390,373,374,380,381,382],0:2].astype(np.int32)
+
+    def get_mouth_outline(self):
+        return self[[78,191,80,81,82,13,312,311,310,415,308,324,318,402,317,14,87,178,88,95],0:2].astype(np.int32)
+
+    def get_mouth_line(self):
+        return self[[57,61,78,191,80,81,82,13,312,311,310,415,308,291,287],0:2].astype(np.int32)
+        
+    def get_teeth_line(self, type='middle'):
+        teeth_line_left = [[-0.23, 0.398, 0.45], [-0.22, 0.396, 0.32], [-0.18, 0.394, 0.18], [-0.1, 0.392, 0.1], [0., 0.39, 0.05]]
+        teeth_line_right = [(-x,y,z) for (x,y,z) in teeth_line_left[3::-1]]
+        teeth_line = teeth_line_left + teeth_line_right
+        teeth_line = np.array(teeth_line)
+        
+        if type=='upper':
+            teeth_line = teeth_line + np.array([0,-0.06,0])
+        elif type=='lower':
+            teeth_line = teeth_line + np.array([0, 0.06,0])
+
+        return self.__denormalize(teeth_line)
+        #return teeth_line
+        #  X -->   Y \/   Z -->
 
     def translate(self, vectors, exclude_boudary=True):
         if exclude_boudary:
@@ -110,8 +129,7 @@ class FaceLandmarksList():
         landmarks -= self.__norm_translate
         landmarks /= self.__norm_scale
         landmarks = self.__norm_rotation.apply(landmarks, inverse=True)
-        self.__landmarks = landmarks
-        return self
+        return FaceLandmarksList(landmarks)
 
     def get_normalized(self):
         if self.__normalized_landmarks is None:
@@ -135,10 +153,13 @@ class FaceLandmarksList():
             self.__normalized_landmarks += self.__norm_translate
         return self.__normalized_landmarks.copy()
         
-    #def denormalize(self):
-    #    self.__landmarks -= self.__norm_translate
-    #    self.__landmarks /= self.__norm_scale
-    #    self.__landmarks = self.__norm_rotation.apply(self.__landmarks, inverse=True)
+    def __denormalize(self, points):
+        _ = self.get_normalized()
+        points = points.copy()
+        points -= self.__norm_translate
+        points /= self.__norm_scale
+        points = self.__norm_rotation.apply(points, inverse=True)
+        return points
         
     def __angle(self, a, b):
         return np.arccos(np.dot(a,b) / np.abs(np.linalg.norm(a) * np.linalg.norm(b)))

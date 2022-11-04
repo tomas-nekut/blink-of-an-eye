@@ -159,23 +159,6 @@ for (_,face_landmarks1),(_,face_landmarks2) in zip(det1,det2): #[::int(24/frame_
 
     result = np.where(zem>128, (zem-127)*2, zeman_bck)
     
-
-    for (x,y,z) in l:    
-        cv2.circle(result, (int(x),int(y)), 1, (255, 255, 255), -1)
-    #cv2.imwrite("test3/" + str(i) + ".png", img)
-    #zem = cv2.cvtColor(zem, cv2.COLOR_RGBA2BGR)
-    
-
-    '''
-    for (x,y,z) in face_landmarks2.get_normalized():    
-        cv2.circle(result, (int(x*500)+250,int(y*500)+250), 1, (255, 255, 255), -1)
- 
-    for (x,y,z) in previous_face_landmarks2.get_normalized():    
-        cv2.circle(result, (int(x*500)+250,int(y*500)+250), 1, (255, 0, 0), -1)
-    '''
-    
-    
-
     result_list.append(result)
     #out.write(result)
         

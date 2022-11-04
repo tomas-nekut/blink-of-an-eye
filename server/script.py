@@ -1,3 +1,4 @@
+from itertools import tee
 from pydoc import plain
 import sys
 import cv2
@@ -13,78 +14,105 @@ import matplotlib.pyplot as plt
 from face_landmarks_list import FaceLandmarksDetector
 from tqdm import tqdm
 
+img = cv2.imread("../test/zeman3.jpg")
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+landmarks = FaceLandmarksDetector().process(img)
 
-zeman = cv2.imread("../test/zeman5.jpg")
-zeman = cv2.cvtColor(zeman, cv2.COLOR_BGR2RGB)
-zeman_face_landmarks = FaceLandmarksDetector().process(zeman)
-pl = zeman_face_landmarks.to_numpy()
 
-# create background image
-zeman_bck = zeman.copy()
-teeth_right = cv2.imread("teeth.jpg")
-scale_factor = (zeman_face_landmarks[287][0] - zeman_face_landmarks[14][0]) / teeth_right.shape[1]
-size = int(teeth_right.shape[1] * scale_factor), int(teeth_right.shape[0] * scale_factor)
-teeth_right = cv2.resize(teeth_right, (size))
-y_offset = int(zeman_face_landmarks[14][1] - teeth_right.shape[0]/2)
-x_offset = int(zeman_face_landmarks[14][0])
-zeman_bck[y_offset:y_offset+teeth_right.shape[0], x_offset:x_offset+teeth_right.shape[1]] = teeth_right
+def add_teeth(original_img):
+    img = original_img.copy()
+    teeth = cv2.imread("teeth.jpg")
+    teeth = cv2.cvtColor(teeth, cv2.COLOR_BGR2RGB)
 
-pt1 = zeman_face_landmarks.to_numpy()[[33,246,161,160,159,158,157,173,133,155,154,153,145,144,163,7]][:,0:2].astype(np.int32)
-pt2 = zeman_face_landmarks.to_numpy()[[362,398,384,385,386,387,388,466,263,249,390,373,374,380,381,382]][:,0:2].astype(np.int32)
-pt3 = zeman_face_landmarks.to_numpy()[[78,191,80,81,82,13,312,311,310,415,308,324,318,402,317,14,87,178,88,95]][:,0:2].astype(np.int32)
-cv2.fillPoly(zeman, pts=[pt1,pt2,pt3], color=(0, 0, 0))   # fill with transparency
+    bg = img
+
+    t = np.zeros_like(img)
+    t[0:teeth.shape[0], 0:teeth.shape[1]] = teeth
+
+
+    h = FaceLandmarksDetector().process(bg).get_teeth_line()
+    # find local max
+    min = h[:,0].argmin()
+    max = h[:,0].argmax()
+    teeth_line_upper  = landmarks.get_teeth_line('upper') [min:max+1]
+    teeth_line_middle = landmarks.get_teeth_line('middle')[min:max+1]
+    teeth_line_lower  = landmarks.get_teeth_line('lower') [min:max+1]
+    teeth_line = np.vstack([teeth_line_upper,teeth_line_middle,teeth_line_lower])
+    h = teeth_line[:,:2]
+
+    root = lambda x: np.sign(x) * (abs(x)**(0.7))
+    c = np.linspace(0,1,9)  # len landmarks.get_teeth_line()
+    c = ((root(2*c-1)))*(1/2)+(1/2)
+    print(c)
+    c *= teeth.shape[1]
+    c = c[min:(max+1)]
+    print(c)
+    print("teeth.shape[1]", teeth.shape[1])
+    g = np.expand_dims(c, axis=1)
+
+    g = np.hstack([g, np.ones_like(g)*teeth.shape[0]/2]).astype(np.int32)
+    a = g.copy()
+    a[:,1] = 0
+    b = g.copy()
+    b[:,1] = teeth.shape[0]
+    g = np.vstack([a,g,b])
+
+    print(h.shape)
+    print(g.shape)
+
+
+
+    #for v,b in zip(h,g):
+    #    cv2.line(bg, v.astype(np.int32), b.astype(np.int32), (255,255,255), 1)
+        
+
+    f_x = interpolate.LinearNDInterpolator(h, g[:,0])
+    f_y = interpolate.LinearNDInterpolator(h, g[:,1])
+    x = f_x(*np.meshgrid(np.arange(t.shape[1]), np.arange(t.shape[0]))).astype(np.float32)
+    y = f_y(*np.meshgrid(np.arange(t.shape[1]), np.arange(t.shape[0]))).astype(np.float32)
+    remaped_t = cv2.remap(t, x, y, interpolation=cv2.INTER_LINEAR, borderValue=0, borderMode=cv2.BORDER_CONSTANT) 
+
+    bg = np.where(remaped_t != 0, remaped_t, bg)
+    return bg
+
+'''
+for (x,y) in h:    
+    cv2.circle(remaped_t, (int(x),int(y)), 1, (255, 255, 255), -1)
+
+for (x,y) in g:    
+    cv2.circle(remaped_t, (int(x),int(y)), 1, (255, 255, 255), -1)
+'''
+
+#cv2.imwrite("../test/bg.jpg", bg)
+#exit()
+
+bg = add_teeth(img)
+
+# fill eyes and mouth with black
+poly = [landmarks.get_left_eye_outline(), landmarks.get_right_eye_outline(), landmarks.get_mouth_outline()]
+cv2.fillPoly(img, pts=poly, color=(0, 0, 0))  
 
 result_list = []
 frame_rate = 8
 
-for vectors in tqdm(np.load("data.npy")[::int(24/frame_rate)]):
+for vectors in tqdm(np.load("motion_vectors.npy")[::int(24/frame_rate)]):
 
-    l = zeman_face_landmarks.copy().translate(vectors).to_numpy()
+    translated_landmarks = landmarks.translate(vectors)
    
-    f_x = interpolate.LinearNDInterpolator(l[:,0:2], pl[:,0])
-    x,y = np.meshgrid(np.arange(zeman.shape[1]), np.arange(zeman.shape[0]))
-    vect_x = f_x(x,y)
+    # interpolate 
+    f_x = interpolate.LinearNDInterpolator(translated_landmarks.to_numpy()[:,0:2], landmarks.to_numpy()[:,0])
+    f_y = interpolate.LinearNDInterpolator(translated_landmarks.to_numpy()[:,0:2], landmarks.to_numpy()[:,1])
     
-    f_y = interpolate.LinearNDInterpolator(l[:,0:2], pl[:,1])
-    x,y = np.meshgrid(np.arange(zeman.shape[1]), np.arange(zeman.shape[0]))
-    vect_y = f_y(x,y)
+    # evaluete interpolation function for each pixel of input image
+    x = f_x(*np.meshgrid(np.arange(img.shape[1]), np.arange(img.shape[0]))).astype(np.float32)
+    y = f_y(*np.meshgrid(np.arange(img.shape[1]), np.arange(img.shape[0]))).astype(np.float32)
    
-    x = vect_x.astype(np.float32)
-    y = vect_y.astype(np.float32)
-    
-    
+    remaped_img = cv2.remap(img, x, y, interpolation=cv2.INTER_LINEAR, borderValue=0, borderMode=cv2.BORDER_CONSTANT) 
 
-    remaped_zeman = cv2.remap(zeman, x, y, interpolation=cv2.INTER_LINEAR, borderValue=0, borderMode=cv2.BORDER_CONSTANT) 
-    #remap_region =  np.dstack([np.logical_not(np.isnan(x) | np.isnan(y))]*3)
-    
-    
-    #for (x,y,z) in l:    
-    #   cv2.circle(result, (int(x),int(y)), 1, (255, 255, 255), -1)
-
-
-    #holes = np.zeros_like(zeman)
-    pt1 = l[[33,246,161,160,159,158,157,173,133,155,154,153,145,144,163,7]][:,0:2].astype(np.int32)
-    pt2 = l[[362,398,384,385,386,387,388,466,263,249,390,373,374,380,381,382]][:,0:2].astype(np.int32)
-    pt3 = l[[78,191,80,81,82,13,312,311,310,415,308,324,318,402,317,14,87,178,88,95]][:,0:2].astype(np.int32)
-    cv2.fillPoly(remaped_zeman, pts=[pt1,pt2,pt3], color=(0, 0, 0))  
-    #holes = holes.astype(bool)
-
-    #print(remap_region.dtype, holes.dtype)
-
-    #mask = remap_region & np.logical_not(holes)
-    
-    result = np.where(remaped_zeman!=0, remaped_zeman, zeman_bck)
-
-
-    '''
-    for (x,y,z) in face_landmarks2.get_normalized():    
-        cv2.circle(result, (int(x*500)+250,int(y*500)+250), 1, (255, 255, 255), -1)
- 
-    for (x,y,z) in previous_face_landmarks2.get_normalized():    
-        cv2.circle(result, (int(x*500)+250,int(y*500)+250), 1, (255, 0, 0), -1)
-    '''
-
-    
+    poly = [translated_landmarks.get_left_eye_outline(), translated_landmarks.get_right_eye_outline(), translated_landmarks.get_mouth_outline()]
+    cv2.fillPoly(remaped_img, pts=poly, color=(0, 0, 0))  
+   
+    result = np.where(remaped_img != 0, remaped_img, bg)
     result_list.append(result)
        
 imageio.mimsave('../test/out.gif', result_list, fps=frame_rate)
