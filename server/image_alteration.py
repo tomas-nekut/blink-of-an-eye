@@ -60,7 +60,9 @@ def fill_eye_mouth_with_black(img, landmarks):
     img = cv2.fillPoly(img, pts=poly, color=(0, 0, 0))  
     return img
 
-def alter_image(img):
+def alter_image(img_src):
+    img = cv2.imread(img_src)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     landmarks = FaceLandmarksDetector().process(img)
     background = add_teeth(img)
     img = fill_eye_mouth_with_black(img, landmarks)
@@ -75,6 +77,3 @@ def alter_image(img):
     imageio.mimsave('../test/out.gif', result_list, fps=frame_rate)
 
 
-img = cv2.imread("../test/zeman3.jpg")
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-alter_image(img)
