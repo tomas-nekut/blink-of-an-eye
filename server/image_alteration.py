@@ -60,8 +60,8 @@ def fill_eye_mouth_with_black(img, landmarks):
     img = cv2.fillPoly(img, pts=poly, color=(0, 0, 0))  
     return img
 
-def alter_image(img_src):
-    img = cv2.imread(img_src)
+def alter_image(src_path, dst_path):
+    img = cv2.imread(src_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     landmarks = FaceLandmarksDetector().process(img)
     background = add_teeth(img)
@@ -74,6 +74,6 @@ def alter_image(img_src):
         remaped_img = fill_eye_mouth_with_black(remaped_img, translated_landmarks)  
         result = np.where(remaped_img != 0, remaped_img, background)
         result_list.append(result)   
-    imageio.mimsave('../test/out.gif', result_list, fps=frame_rate)
+    imageio.mimsave(dst_path, result_list, fps=frame_rate)
 
 
