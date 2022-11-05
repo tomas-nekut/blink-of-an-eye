@@ -2,7 +2,7 @@ import cv2
 import imageio
 from scipy import interpolate
 import numpy as np
-from face_landmarks_list import FaceLandmarksDetector
+from face_landmarks import FaceLandmarksDetector
 from tqdm import tqdm
 
 # mapping from input to target image is described by set of source point -> destination point pairs 
