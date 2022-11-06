@@ -64,7 +64,9 @@ class FaceAnimator():
         y = f_y(*np.meshgrid(np.arange(img.shape[1]), np.arange(img.shape[0]))).astype(np.float32)
         # transform image
         remaped_img = cv2.remap(img, x, y, interpolation=cv2.INTER_LINEAR, borderValue=0, borderMode=cv2.BORDER_CONSTANT) 
-        return remaped_img
+        remaped_mask = 1-(np.isnan(x) | np.isnan(y))
+        remaped_mask = np.repeat(np.expand_dims(remaped_mask, axis=2), 3, axis=2) # H x W -> H x W x C
+        return remaped_img, remaped_mask
 
     # 
     def __add_teeth(self, img, landmarks):
@@ -95,7 +97,7 @@ class FaceAnimator():
         lower_dst_points = landmarks.get_teeth_line('lower')[teeth_line_start:teeth_line_end].to_XY()
         dst_points = np.vstack([upper_dst_points,middle_dst_points,lower_dst_points])
         # transform teeth img using source points -> destination points mapping
-        remaped_teeth = self.__remap_image(teeth, src_points, dst_points) 
+        remaped_teeth,_ = self.__remap_image(teeth, src_points, dst_points) 
         # outside mapping region fill with original image 
         target_image = np.where(remaped_teeth != 0, remaped_teeth, img)
         return target_image
@@ -107,16 +109,46 @@ class FaceAnimator():
         img = cv2.fillPoly(img, pts=poly, color=(0, 0, 0))  
         return img
 
+    def __get_left_eye_mask(self, img_shape, landmarks):
+        poly = landmarks.get_left_eye_outline().to_XY().astype(int)       
+        img = cv2.fillPoly(np.zeros(img_shape), pts=[poly], color=(1, 1, 1))  
+        return img > 0.5
+
+    def __get_right_eye_mask(self, img_shape, landmarks):
+        poly = landmarks.get_right_eye_outline().to_XY().astype(int)       
+        img = cv2.fillPoly(np.zeros(img_shape), pts=[poly], color=(1, 1, 1))  
+        return img > 0.5
+
+    def __get_mouth_mask(self, img_shape, landmarks):
+        poly = landmarks.get_mouth_outline().to_XY().astype(int)       
+        img = cv2.fillPoly(np.zeros(img_shape), pts=[poly], color=(1, 1, 1))  
+        return img > 0.5
+
+    def __get_mouth_opacity(self, landmarks):
+        return min(1, landmarks.get_mouth_openness_coef() * 2.5)
+
+    def __get_right_eye_opacity(self, landmarks):
+        return min(1, landmarks.get_right_eye_openness_coef() * 5)
+
     def __animate_image(self, img):
         landmarks = self.__face_landmarks_detector.process(img)
         background = self.__add_teeth(img, landmarks)
-        img = self.__fill_eye_mouth_with_black(img, landmarks)
+        #img = self.__fill_eye_mouth_with_black(img, landmarks)
+        #kernel = np.ones((3,3),np.float32)/9
         frames = []
         for vectors in tqdm(self.__motion_vectors[::int(24/self.__frame_rate)]):
             translated_landmarks = landmarks.translate(vectors)
-            remaped_img = self.__remap_image(img, landmarks.get_mesh().to_XY(), translated_landmarks.get_mesh().to_XY())
-            remaped_img = self.__fill_eye_mouth_with_black(remaped_img, translated_landmarks)  
-            result = np.where(remaped_img != 0, remaped_img, background)
+            remaped_img, remaped_mask = self.__remap_image(img, landmarks.get_mesh().to_XY(), translated_landmarks.get_mesh().to_XY())
+            # blend remapped image with background
+            left_eye_mask = self.__get_left_eye_mask(img.shape, translated_landmarks)
+            right_eye_mask = self.__get_right_eye_mask(img.shape, translated_landmarks)
+            mouth_mask = self.__get_mouth_mask(img.shape, translated_landmarks)
+            result = remaped_img * remaped_mask * (1-left_eye_mask) * (1-right_eye_mask) * (1-mouth_mask) \
+                + background * (1-remaped_mask) \
+                + background * left_eye_mask    \
+                + background * right_eye_mask * self.__get_right_eye_opacity(translated_landmarks) \
+                + background * mouth_mask * self.__get_mouth_opacity(translated_landmarks)
+            #result = cv2.filter2D(result,-1,kernel)
             frames.append(result)   
         return frames
 

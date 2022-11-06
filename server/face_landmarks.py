@@ -110,6 +110,12 @@ class FaceLandmarksList():
             teeth_line = teeth_line + np.array([0, 0.06,0])
         return self.__denormalize(teeth_line)
 
+    def get_mouth_openness_coef(self):
+        return np.linalg.norm((self[14]-self[13])) / np.linalg.norm(self[308]-self[78])
+
+    def get_right_eye_openness_coef(self):
+        return np.linalg.norm((self[386]-self[374])) / np.linalg.norm(self[263]-self[362])
+
     def translate(self, vectors, exclude_boudary=True):
         # prevent boundary landmarks from moving by clearing their translation vectors
         if exclude_boudary:
@@ -118,7 +124,7 @@ class FaceLandmarksList():
         landmarks = self.__get_normalized()
         landmarks += vectors
         # move certain landmarks that tends to overlap and cause interpolation problem 
-        for u,l in [(398,381),(384,380),(385,374),(386,373),(387,390),(388,249)]:
+        for u,l in [(398,381),(384,380),(385,380),(385,374),(386,374),(386,373),(387,373),(387,390),(388,249)]:
             if landmarks[u][1] + 0.01 > landmarks[l][1]:
                 landmarks[u][1] = landmarks[l][1] - 0.01
         for u,l in [(17,18),(84,83),(181,182),(314,313),(405,406)]:
