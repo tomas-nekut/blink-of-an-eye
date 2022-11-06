@@ -1,5 +1,5 @@
 import os
-import sys
+import traceback
 from face_animation import FaceAnimator
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -7,6 +7,7 @@ import nest_asyncio
 from pyngrok import ngrok
 import uvicorn
 import uuid
+
 
 app = FastAPI()
 face_animator = FaceAnimator()
@@ -20,7 +21,7 @@ async def index():
   try:
     animation_successful = face_animator.process(src_path, dst_path)
   except:
-    raise HTTPException(status_code=500, detail=sys.exc_info())
+    raise HTTPException(status_code=500, detail=traceback.format_exc())
   if not animation_successful:
     raise HTTPException(status_code=204, detail="no face suitable for animation found")
   response = FileResponse(dst_path)
