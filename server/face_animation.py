@@ -97,9 +97,10 @@ class FaceAnimator():
         lower_dst_points = landmarks.get_teeth_line('lower')[teeth_line_start:teeth_line_end].to_XY()
         dst_points = np.vstack([upper_dst_points,middle_dst_points,lower_dst_points])
         # transform teeth img using source points -> destination points mapping
-        remaped_teeth,_ = self.__remap_image(teeth, src_points, dst_points) 
+        remaped_teeth,remaped_mask = self.__remap_image(teeth, src_points, dst_points) 
         # outside mapping region fill with original image 
-        target_image = np.where(remaped_teeth != 0, remaped_teeth, img)
+        target_image = remaped_teeth*remaped_mask + img*(1-remaped_mask)
+        #target_image = np.where(remaped_teeth != 0, remaped_teeth, img)
         return target_image
 
     def __fill_eye_mouth_with_black(self, img, landmarks):
@@ -133,7 +134,6 @@ class FaceAnimator():
     def __animate_image(self, img):
         landmarks = self.__face_landmarks_detector.process(img)
         background = self.__add_teeth(img, landmarks)
-        #img = self.__fill_eye_mouth_with_black(img, landmarks)
         #kernel = np.ones((3,3),np.float32)/9
         frames = []
         for vectors in tqdm(self.__motion_vectors[::int(24/self.__frame_rate)]):
