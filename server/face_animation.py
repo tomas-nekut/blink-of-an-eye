@@ -9,10 +9,11 @@ from PIL import Image
 
 class FaceAnimator():
     
-    def __init__(self, face_example="face_example.jpg", teeth="teeth.jpg", motion_vectors="motion_vectors.npy"):
-        self.__face_example_encoding = fr.face_encodings(fr.load_image_file(face_example))
-        self.__teeth = cv2.imread(teeth)
+    def __init__(self, face_example="face_example.jpg", teeth="teeth.jpg", motion_vectors="motion_vectors.npy", frame_rate=8):
+        self.__face_example_encoding = fr.face_encodings(fr.load_image_file(face_example))[0]
+        self.__teeth = cv2.cvtColor(cv2.imread(teeth), cv2.COLOR_BGR2RGB)
         self.__motion_vectors = np.load(motion_vectors)
+        self.__frame_rate = frame_rate
         self.__face_landmarks_detector = FaceLandmarksDetector()
 
     # gets src_path to an image, perform animation and saves animated image to dst_path
@@ -21,8 +22,9 @@ class FaceAnimator():
         # detect faces, find face for animation (same id as given face example) and animate it
         img = fr.load_image_file(src_path)
         for location, encoding in zip(fr.face_locations(img),fr.face_encodings(img)):
+            print("face detected")
             if not fr.compare_faces([self.__face_example_encoding], encoding)[0]:
-                break
+                continue
             img = cv2.imread(src_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             # extend copped region
@@ -32,9 +34,9 @@ class FaceAnimator():
             # animate
             frames_cropped = self.__animate_image(img_cropped)
             # place cropped animated frames into original image
-            frames = [ self.__place(img, frame_cropped, location) for frame_cropped in frames_cropped ]
+            frames = [ Image.fromarray(self.__place(img, frame_cropped, location)) for frame_cropped in frames_cropped ]
             # generate output GIF file
-            frames[0].save(dst_path, format="GIF", append_images=frames, save_all=True, duration=100, loop=0)
+            frames[0].save(dst_path, format="png", save_all=True, append_images=frames, duration=1000/self.__frame_rate, loop=0)
             return True
         # no face suitable for animation found
         return False
@@ -66,9 +68,7 @@ class FaceAnimator():
 
     # 
     def __add_teeth(self, img, landmarks):
-        teeth = cv2.imread("teeth.jpg")
-        teeth = cv2.cvtColor(teeth, cv2.COLOR_BGR2RGB)
-        teeth = cv2.resize(teeth, dsize=(img.shape[1],img.shape[0]))
+        teeth = cv2.resize(self.__teeth, dsize=(img.shape[1],img.shape[0]))
         # transform teeth image to match mouth position of face in original image
         # find part of teeth line that is visible given view angle
         teeth_line_start = landmarks.get_teeth_line()[:,0].argmin()
@@ -112,13 +112,12 @@ class FaceAnimator():
         background = self.__add_teeth(img, landmarks)
         img = self.__fill_eye_mouth_with_black(img, landmarks)
         frames = []
-        frame_rate = 8
-        for vectors in tqdm(np.load("motion_vectors.npy")[::int(24/frame_rate)]):
+        for vectors in tqdm(self.__motion_vectors[::int(24/self.__frame_rate)]):
             translated_landmarks = landmarks.translate(vectors)
             remaped_img = self.__remap_image(img, landmarks.get_mesh().to_XY(), translated_landmarks.get_mesh().to_XY())
             remaped_img = self.__fill_eye_mouth_with_black(remaped_img, translated_landmarks)  
             result = np.where(remaped_img != 0, remaped_img, background)
-            frames.append(Image.fromarray(result))   
+            frames.append(result)   
         return frames
 
 

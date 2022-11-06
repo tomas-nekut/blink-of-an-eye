@@ -16,7 +16,7 @@ async def index():
   # save received file 
   src_path = "../../input.jpg" # todo
   # generate temporary destination path
-  dst_path = str(uuid.uuid4()) + ".gif"
+  dst_path = str(uuid.uuid4()) + ".png"
   try:
     animation_successful = face_animator.process(src_path, dst_path)
   except:
