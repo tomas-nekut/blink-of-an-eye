@@ -10,12 +10,18 @@ import uuid
 
 
 app = FastAPI()
-face_animator = FaceAnimator()
 
-@app.get('/index')
-async def index():
+# temp1.src = "http://ede3-211-170-153-242.ngrok.io/" + encodeURIComponent(temp1.src);
+
+@app.get('/animate/{path:url}')
+async def index(url):
+
+  print(url)
+  return url
+
+  face_animator = FaceAnimator()
   # save received file 
-  src_path = "../../input.jpg" # todo
+  src_path = "../test/zeman7.jpg" # todo
   # generate temporary destination path
   dst_path = str(uuid.uuid4()) + ".png"
   try:
