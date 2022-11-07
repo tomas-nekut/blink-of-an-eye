@@ -2,6 +2,7 @@
 import sys
 from flask import Flask, send_file, make_response, request
 from flask_lt import run_with_lt
+from flask_cors import CORS
 from urllib.request import urlopen
 from PIL import Image
 import uuid
@@ -9,6 +10,7 @@ from face_animation import FaceAnimator
 import traceback
 
 app = Flask(__name__)
+CORS(app, origins='*')
 face_animator = FaceAnimator()
 
 if "-localtunel" in sys.argv:
@@ -31,7 +33,7 @@ def index():
         return "no face suitable for animation found", 204
     
     response = make_response(send_file(dst_path))
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    #response.headers['Access-Control-Allow-Origin'] = '*'
     #os.remove(dst_path)
     return response
 
