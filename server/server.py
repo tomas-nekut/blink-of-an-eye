@@ -18,7 +18,7 @@ if "-localtunel" in sys.argv:
 
 @app.route("/", methods=['POST'])
 def index(): 
-    url = request.json['url']
+    url = request.json['img_url']
     # save received file to temporary path
     img = Image.open(urlopen(url))
     src_path = str(uuid.uuid4()) + "." + img.format
