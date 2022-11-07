@@ -1,41 +1,29 @@
 
 
-//const uploadFileEle = document.getElementById("fileInput")
-//console.log(uploadFileEle.files[0]);
-
-
+url = "https://in-a-blink-of-an-eye.loca.lt/";  
 
 setTimeout(function () {
-    document.querySelectorAll("img").forEach(i => make_the_magic(i));    //"img:not(.zeman)"
+    document.querySelectorAll("img").forEach(i => animate(i));    
 }, 1000);
 
-// setInterval(function () {
-//     document.querySelectorAll("img").forEach(i => make_the_magic(i));    //"img:not(.zeman)"
-// }, 1000);
-
-
-function make_the_magic(i)
-{
-
-
-
-    /*let file = fileElement.files[0];
-    let formData = new FormData();
-    formData.set('file', file);
-    axios.post("http://localhost:3001/upload-single-file", formData)
-      .then(res => {
-      console.log(res)
-    })*/
-
-
-    //if(i.previous_src != i.src){      
-    //    i.previous_src = i.src;
-        i.src = "localhost:50000/" + encodeURIComponent(i.src);
-        //console.log("localhost:50000/" + encodeURIComponent(i.src));
-        console.log("a");
-    //}
+function base64Encode (buf) {
+    console.log(buf);
+    let string = '';
+    (new Uint8Array(buf)).forEach(
+        (byte) => { string += String.fromCharCode(byte) }
+      )
+    return btoa(string)
 }
 
-function utf8_to_b64( str ) {
-    return window.btoa(encodeURIComponent( escape( str )));
+async function animate(img){
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Bypass-Tunnel-Reminder':1 },
+        body: JSON.stringify({ "img_url": img.src })
+    };
+    fetch(url, requestOptions)
+        .then(response => response.status == 200 ? response : null)
+        .then(response => response.arrayBuffer())
+        .then(buff => base64Encode(buff))
+        .then(base64 => img.src = 'data:image/png;base64,' + base64);
 }
