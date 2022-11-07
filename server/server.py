@@ -20,7 +20,7 @@ if "-localtunel" in sys.argv:
 def index(): 
     url = request.json['img_url']
     # save received file to temporary path
-    img = Image.open(urlopen(url))
+    img = Image.open(urlopen(url)).convert('RGB')
     src_path = str(uuid.uuid4()) + "." + img.format
     img.save(src_path)
     # generate temporary destination path
