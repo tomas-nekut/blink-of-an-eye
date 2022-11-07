@@ -1,6 +1,6 @@
 
 import sys
-from flask import Flask, send_file
+from flask import Flask, send_file, make_response
 from flask_lt import run_with_lt
 from urllib.request import urlopen
 from PIL import Image
@@ -28,7 +28,9 @@ def index(url):
         return traceback.format_exc(), 500
     if not animation_successful:
         return "no face suitable for animation found", 204
-    response = send_file(dst_path, mimetype='image/png')
+    
+    response = make_response(send_file(dst_path))
+    response.headers['Access-Control-Allow-Origin'] = '*'
     #os.remove(dst_path)
     return response
 
