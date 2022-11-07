@@ -1,6 +1,6 @@
 
 import sys
-from flask import Flask, send_file, make_response
+from flask import Flask, send_file, make_response, request
 from flask_lt import run_with_lt
 from urllib.request import urlopen
 from PIL import Image
@@ -14,8 +14,9 @@ face_animator = FaceAnimator()
 if "-localtunel" in sys.argv:
     run_with_lt(app, subdomain="in-a-blink-of-an-eye")
 
-@app.route("/<path:url>")
-def index(url):
+@app.route("/", methods=['POST'])
+def index(): 
+    url = request.json['url']
     # save received file to temporary path
     img = Image.open(urlopen(url))
     src_path = str(uuid.uuid4()) + "." + img.format
