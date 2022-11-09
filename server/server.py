@@ -2,8 +2,9 @@ import os
 import sys
 import traceback
 from face_animation import FaceAnimator
-from fastapi import FastAPI, HTTPException, BaseModel
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 import nest_asyncio
 import uvicorn
 import uuid
