@@ -5,6 +5,8 @@ from face_animation import FaceAnimator
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 import nest_asyncio
 import uvicorn
 import uuid
@@ -15,7 +17,9 @@ from PIL import Image
 class Data(BaseModel):
     img_url: str
 
-app = FastAPI()
+app = FastAPI(middleware=[
+    Middleware(CORSMiddleware, allow_origins=["*"])
+])
 face_animator = FaceAnimator()
 
 @app.post('/')
