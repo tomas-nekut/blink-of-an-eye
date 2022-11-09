@@ -4,9 +4,8 @@ import traceback
 from face_animation import FaceAnimator
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from starlette.middleware import Middleware
-from starlette.middleware.cors import CORSMiddleware
 import nest_asyncio
 import uvicorn
 import uuid
@@ -17,17 +16,16 @@ from PIL import Image
 class Data(BaseModel):
     img_url: str
 
-app = FastAPI(middleware=[
-    Middleware(CORSMiddleware, allow_origins=["*"])
-])
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 face_animator = FaceAnimator()
+port = sys.argv["-port"] if "-port" in sys.argv else 8000
 
 @app.post('/')
 async def index(data: Data):
     try:
         url = data.img_url
         # save received file to temporary path
-        print(url)
         img = Image.open(urlopen(url))
         src_path = str(uuid.uuid4()) + "." + img.format
         img.save(src_path)
@@ -36,7 +34,6 @@ async def index(data: Data):
         face_found = face_animator.process(src_path, dst_path)
         if(face_found):
             response = FileResponse(dst_path)
-            os.remove(dst_path)
             return response
     except:
         raise HTTPException(status_code=500, detail=traceback.format_exc())
@@ -45,7 +42,7 @@ async def index(data: Data):
 
 def main():
     nest_asyncio.apply()
-    uvicorn.run(app, port=8000)
+    uvicorn.run(app, port=port)
 
 if __name__ == "__main__":
     main()

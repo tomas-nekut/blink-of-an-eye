@@ -126,7 +126,7 @@ class FaceAnimator():
         return img > 0.5
 
     def __get_mouth_opacity(self, landmarks):
-        return min(1, landmarks.get_mouth_openness_coef() * 2.5)
+        return min(0.7, landmarks.get_mouth_openness_coef() * 2.5)
 
     def __get_right_eye_opacity(self, landmarks):
         return min(1, landmarks.get_right_eye_openness_coef() * 5)
