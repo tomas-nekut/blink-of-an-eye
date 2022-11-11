@@ -1,6 +1,6 @@
 
 
-url = "https://in-a-blink-of-an-eye.loca.lt/animate";  
+url = "https://in-the-wink-of-an-eye.loca.lt/animate";  
 
 setTimeout(function () {
     document.querySelectorAll("img").forEach(i => animate(i));    

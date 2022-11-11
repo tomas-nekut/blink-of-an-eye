@@ -1,9 +1,9 @@
 {
-  "name": "In the blink of an eye",
+  "name": "In the wink of an eye",
   "version": "1.2",
   "manifest_version": 3,
   "description": "Making images of Miloš Zeman more realistic.",
-  "homepage_url": "https://github.com/tomas-nekut/in-the-blink-of-an-eye",
+  "homepage_url": "https://github.com/tomas-nekut/in-the-wink-of-an-eye",
   "author": "Tomáš Nekut",
   "icons": {
     "48": "icon48.png",
