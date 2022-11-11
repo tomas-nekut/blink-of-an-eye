@@ -19,9 +19,9 @@ class Data(BaseModel):
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 face_animator = FaceAnimator()
-port = sys.argv["-port"] if "-port" in sys.argv else 8000
+port = sys.argv["--port"] if "--port" in sys.argv else 8000
 
-@app.post('/')
+@app.post('/animate')
 async def index(data: Data):
     try:
         url = data.img_url

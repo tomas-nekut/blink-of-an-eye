@@ -1,7 +1,13 @@
 {
-  "name": "Alert 'hello world!' on page opening",
+  "name": "In the blink of an eye",
   "version": "1.0",
   "manifest_version": 3,
+  "homepage_url": "https://github.com/tomas-nekut/in-the-blink-of-an-eye",
+  "author": "Tomáš Nekut",
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "content_scripts": [
     {
       "matches": [

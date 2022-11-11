@@ -1,6 +1,6 @@
 
 
-url = "https://in-a-blink-of-an-eye.loca.lt/";  
+url = "https://in-a-blink-of-an-eye.loca.lt/animate";  
 
 setTimeout(function () {
     document.querySelectorAll("img").forEach(i => animate(i));    
@@ -25,5 +25,6 @@ async function animate(img){
         .then(response => response.status == 200 ? response : null)
         .then(response => response.arrayBuffer())
         .then(buff => base64Encode(buff))
-        .then(base64 => img.src = 'data:image/png;base64,' + base64);
+        .then(base64 => img.src = 'data:image/png;base64,' + base64)
+        .then(_ => img.srcset = "");
 }
