@@ -134,6 +134,10 @@ class FaceLandmarksList():
         landmarks = self.__denormalize(landmarks)
         return FaceLandmarksList(landmarks)
 
+    def get_normalized(self):
+        normalized_landmarks, _ = self.__compute_normalization()
+        return normalized_landmarks
+
     def __compute_normalization(self):
         if self.__normalized_landmarks is None:
             # rotation
@@ -156,10 +160,6 @@ class FaceLandmarksList():
             self.__normalized_landmarks += self.__norm_translate
         return self.__normalized_landmarks.copy(), (self.__norm_translate, self.__norm_scale, self.__norm_rotation)
         
-    def __get_normalized(self):
-        normalized_landmarks, _ = self.__compute_normalization()
-        return normalized_landmarks
-
     def __denormalize(self, points):
         _, (norm_translate, norm_scale, norm_rotation) = self.__compute_normalization()
         points = points.copy()
