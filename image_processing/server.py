@@ -1,6 +1,6 @@
 import sys
 import traceback
-from face_animation import FaceAnimator
+from utils.face_animation import FaceAnimator
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware

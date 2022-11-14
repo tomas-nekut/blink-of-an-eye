@@ -1,7 +1,7 @@
 from os
 import sys
 import numpy as np
-from ../image_processing/face_landmarks import FaceLandmarksVideoDetector
+from utils.face_landmarks import FaceLandmarksVideoDetector
 
 # process input arguments 
 # --dst dst_path --videos video_path_1 [weight_1] [video_path_2 [weight_2] ...]

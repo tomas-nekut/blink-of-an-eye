@@ -2,7 +2,7 @@ from base64 import encode
 import cv2
 from scipy import interpolate
 import numpy as np
-from ../image_processing/face_landmarks import FaceLandmarksDetector
+from utils.face_landmarks import FaceLandmarksDetector
 import face_recognition as fr
 from tqdm import tqdm
 from PIL import Image
