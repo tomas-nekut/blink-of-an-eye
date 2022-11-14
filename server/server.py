@@ -1,4 +1,3 @@
-import os
 import sys
 import traceback
 from face_animation import FaceAnimator
@@ -16,10 +15,20 @@ from PIL import Image
 class Data(BaseModel):
     img_url: str
 
+def get_argument(name, default=None):
+    try: return sys.argv[sys.argv.index(name) + 1]
+    except:
+        if default==None:
+            print("You have to specify '" + name + "' parameter."), exit(0)
+        return default
+
+port = get_argument("--port") 
+face_example = get_argument("--face_example", default="zeman.jpg")
+motion_vectors = get_argument("--motion_vectors", default="wink.npy")
+
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-face_animator = FaceAnimator()
-port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 8000
+face_animator = FaceAnimator(face_example=face_example, motion_vectors=motion_vectors)
 
 @app.post('/animate')
 async def index(data: Data):

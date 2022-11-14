@@ -1,3 +1,4 @@
 server/__pycache__/
+motion_vectors_extraction/__pycache__/
+image_processing/__pycache__/
 test/
-server/test.py

@@ -2,14 +2,13 @@ from base64 import encode
 import cv2
 from scipy import interpolate
 import numpy as np
-from face_landmarks import FaceLandmarksDetector
+from ../image_processing/face_landmarks import FaceLandmarksDetector
 import face_recognition as fr
 from tqdm import tqdm
 from PIL import Image
 
 class FaceAnimator():
-    
-    def __init__(self, face_example="face_example.jpg", teeth="teeth.jpg", motion_vectors="motion_vectors.npy", frame_rate=8):
+    def __init__(self, face_example, motion_vectors, teeth="teeth.jpg", frame_rate=8):
         self.__face_example_encoding = fr.face_encodings(fr.load_image_file(face_example))[0]
         self.__teeth = cv2.cvtColor(cv2.imread(teeth), cv2.COLOR_BGR2RGB)
         self.__motion_vectors = np.load(motion_vectors)

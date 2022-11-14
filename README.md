@@ -18,7 +18,7 @@ IMAGE
 
 There are two simple steps to make Zeman wink at you.
 
-1.  Set up the image-processing web server. Navigate to the `/server` directory where you will find a Python web application based on the _FastAPI_ framework. You can run in using `python server.py --port <port>`. It should run on a public domain to allow the browser extension to reach its endpoint. TIP! You can use [localtunnel](https://theboroer.github.io/localtunnel-www/) to make your local server publicly available. If you are a fan of **Google Collaboratory,** you can simply launch the server using a `/server/server.ipynb` notebook using their free GPU resources.
+1.  Set up the image-processing web server. Navigate to the `/server` directory where you will find a Python web application based on the _FastAPI_ framework. You can run in using `python server.py --port <port> [--face_example <face_example_path>] [--motion_vectors <motion_vectors_path]`_._ See _It does not have to be only winking Zeman_ capter to see how to use optional parameters. The server should run on a public domain to allow the browser extension to reach its endpoint. TIP! You can use [localtunnel](https://theboroer.github.io/localtunnel-www/) to make your local server publicly available. If you are a fan of **Google Collaboratory,** you can simply launch the server using a `/server/notebook.ipynb` and use free GPU resources.
 2.  Install the Chrome extension. You can find the source code in the `/chrome_extension` directory. There is a [tutorial](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) on how to load an unpacked extension to your browser. To make everything work together, you have to update the URL of your image-processing server at the very beginning of `/chrome_extension/script.js`.
 
 ---
@@ -45,7 +45,7 @@ Using the tools described above I was able to transfer a facial expression from 
 
 ### It does not have to be only winking Zeman
 
-If you would like to experiment you can animate different person instead of Zeman by replacing the `/server/face_example.jpg`. You can even change the face expression by modifying `/server/motion_vectors.npy`. In order to extract motion vectors from your video, navigate to `/motion_vectors/tutorial` where you will find everything you need to know.
+If you would like to experiment you can animate different person instead of Zeman. Only think you need to do is to specify a path to your own face example image of whoever’s face you want to animate by using `--face_example` argument. You can even change the face expression by providing path to motion vectors file using `--motion_vectors` parameter. In order to extract motion vectors from your video, navigate to `/motion_vectors_extraction/tutorial` where you will find everything you need to know.
 
 ---
 

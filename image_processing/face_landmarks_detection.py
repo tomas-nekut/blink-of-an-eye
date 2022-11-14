@@ -1,9 +1,3 @@
-# https://github.com/nghiaho12/rigid_transform_3D
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.html
-
-# Oru Adaar Love, Manikya Malaraya Poovi Song Video
-# expresions https://www.youtube.com/watch?v=embYkODkzcs MDI Management Development International
-# cv2 gpu https://forum.opencv.org/t/can-i-use-opencv-python-with-gpu/8947/2
 
 import numpy as np
 import cv2
