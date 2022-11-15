@@ -4,13 +4,30 @@
 
 This is the semestral project I worked on within the _Open Source Software_ course at _Seoul National University of Science and Technology_ under professor _Sunglok Choi, Ph.D._. The source code of this project includes the extension itself and a web application written in Python responsible for all image-processing.
 
-![](https://plus.rozhlas.cz/sites/default/files/styles/cro_16x9_tablet/public/images/b511ee7b9276eb0d403949cfca7abdc1.jpg) ![](examples/1.png)
+Here you can see an example of an input image and a final animation. You can find more examples in the `/examples` folder.
 
----
+<style>
+table {
+  border-spacing: 0px;
+}
+th, td {
+  padding: 0px;
+}
+</style>
+
+<table border=0>
+  <tr>
+    <td><img src="https://plus.rozhlas.cz/sites/default/files/styles/cro_16x9_tablet/public/images/b511ee7b9276eb0d403949cfca7abdc1.jpg"></td>
+    <td><img src="examples/1.png"></td>
+    
+  </tr>
+ </table>
+
+--- 
 
 ### The motivation
 
-**Why winking Miloš Zeman?** Because of this awkward moment when the Czech president, believe it or not, winked at a reporter in the middle of an interview on television. This happened during a debate before the Czech presidential election in 2018, but even so, he made it to the presidency. Anyway, you can watch the famous moment [here](https://bit.ly/3WurLlX).
+**Why winking Miloš Zeman?** Because of this awkward moment when the Czech president, believe it or not, winked at a reporter in the middle of an interview on television. This happened during a debate before the Czech presidential election in 2018, but even so, he made it to the presidency. Anyway, you can watch the famous moment [here](https://c.tenor.com/yBB3Nfr-2psAAAAd/zeman-blinking.gif).
 
 ---
 
@@ -22,24 +39,21 @@ There are two simple steps to make Zeman wink at you.
 2.  Install the Chrome extension. You can find the source code in the `/chrome_extension` directory. There is a [tutorial](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked) on how to load an unpacked extension to your browser. To make everything work together, you have to update the URL of your image-processing server at the very beginning of `/chrome_extension/script.js`.
 
 ---
-
 ### How does it work?
 
-The image-processing server does nothing but transfers a movement from a video to an arbitrary static image of a face. This results in an animated face mimicking the same facial expression as the actor did in the source video. This transformation is restricted only to Miloš Zeman's face.
+The image-processing server transfers a movement from a video to an arbitrary image of a face. This results in an animated face mimicking the same facial expression as the actor did in the source video. This transformation is restricted only to Miloš Zeman's face.
 
-The image-processing stands on 3 main components: [**Face Recognition**](https://github.com/ageitgey/face_recognition), [**MediaPipe Face Mesh**](https://google.github.io/mediapipe/) and [**OpenCV**](https://docs.opencv.org/3.4/index.html).
+At first, motion vectors have to be extracted from the source video. This is done using [MediaPipe Face Mesh](https://google.github.io/mediapipe/solutions/face_mesh), an open-source machine learning framework by Google. It is capable of estimating the positions of 468 facial points in the 3D space given a photo of a face. The position of these landmarks is compared between video frames and vectors representing the motion of each of them are computed. Since it is not possible to transfer any motion from one face to another if these faces are not properly aligned, each of the 468 vectors has to be rotated, scaled, and translated to a common normalized front-facing pose. This procedure has to be done only once and results in a list of 468 vectors for each video frame.
 
-[**Face Recognition**](https://github.com/ageitgey/face_recognition) is an open-source Python library that solves, besides other tasks, also _face detection_ and _face identification_ problems. This library is used to detect Zeman's face. 
+Animation of a new face works as follows:
 
-[**MediaPipe**](https://google.github.io/mediapipe/) is an open-source machine learning framework by Google which offers a solution to common computer vision tasks. I used specifically the [Face Mesh](https://google.github.io/mediapipe/solutions/face_mesh) tool which estimates the positions of 468 facial points in the 3D space given a photo of a face.
+Detect Zeman's face. For this [Face Recognition](https://github.com/ageitgey/face_recognition) was used. It is an open-source Python library that solves, besides other tasks, also _face detection_ and _face identification_ problems.
 
-![MediaPipe Face Mesh](https://raw.githubusercontent.com/patlevin/face-detection-tflite/main/docs/portrait_fl.jpg)
+Estimate the position of 468 facial points using [MediaPipe Face Mesh](https://google.github.io/mediapipe/solutions/face_mesh) described above. Normalize points to align with the source video.
 
-I used this library to preprocess the source video by detecting facial points in each frame and computing motion-vectors representing the motion in the 3D space of each facial point in each frame. This motion can then be applied to a new face.
+Transform the face to match the pose in each frame of the original video. This is done using [Remap](https://docs.opencv.org/3.4/d1/da0/tutorial_remap.html) function from the OpenCV library. This function maps pixels from their original position to another and thus performs arbitrary transformation of the input image. It requires defining a mapping function a.k.a. where each pixel should move. Since the motion-vectors obtained from the source video define this mapping function only in facial points, these vectors have to be interpolated to each pixel. For this purpose [LinearNDInterpolator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LinearNDInterpolator.html) from the Scipy library worked the best.
 
-[**OpenCV**](https://docs.opencv.org/3.4/index.html) is an open-source computer vision library. This project uses OpenCV mainly to transform faces i.e. apply motion-vectors to its facial points. This task can be solved using [Remap](https://docs.opencv.org/3.4/d1/da0/tutorial_remap.html). This function maps pixels from their original position to another and thus performs any transformation of the input image. It requires defining a mapping function a.k.a. where each pixel should move. Since the motion-vectors obtained from the source video define this mapping function only in facial points, these vectors have to be interpolated to each pixel. For this purpose [LinearNDInterpolator](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.LinearNDInterpolator.html) from _Scipy_ library worked the best.
-
-Using the tools described above I was able to transfer a facial expression from a video to a static image. Sounds simple… But as always there were several catches. For example, if two faces are _not oriented the same way_ it is not possible to transfer any motion vector from one to another. What solved this problem was normalizing facial points first. So the procedure is as follows: rotate, scale, and translate facial points in 3D space to a common normalized front-facing pose then add motion-vectors and finally apply an inverse transformation to denormalize them. Another problem was _teeth_ which have to show up when the face is smiling. Teeth have to reflect the pose of a face and light conditions as well. You are free to see the source code to see more detail.
+The final step is adding teeth to make the animation more realistic. To do so a common image of teeth is transformed to match the pose of a face and incorporated into each frame. This transformation is done again using Remap function. To make teeth look natural their brightness is gradually adjusted as the mouth opens or closes to mimic a shadow.
 
 ---
 
