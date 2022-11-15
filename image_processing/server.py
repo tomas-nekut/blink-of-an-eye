@@ -1,6 +1,5 @@
 import sys
 import traceback
-from utils.face_animation import FaceAnimator
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +10,7 @@ import uuid
 from PIL import Image
 from urllib.request import urlopen
 from PIL import Image
+from face_utils.animation import FaceAnimator
 
 class Data(BaseModel):
     img_url: str
@@ -23,8 +23,8 @@ def get_argument(name, default=None):
         return default
 
 port = get_argument("--port") 
-face_example = get_argument("--face_example", default="zeman.jpg")
-motion_vectors = get_argument("--motion_vectors", default="wink.npy")
+face_example = get_argument("--face_example", default="assets/zeman.jpg")
+motion_vectors = get_argument("--motion_vectors", default="assets/wink.npy")
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
