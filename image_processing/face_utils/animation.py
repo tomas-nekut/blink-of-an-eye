@@ -22,7 +22,6 @@ class FaceAnimator():
         # detect faces, find face for animation (same id as given face example) and animate it
         img = fr.load_image_file(src_path)
         for location, encoding in zip(fr.face_locations(img),fr.face_encodings(img)):
-            print("face detected")
             if not fr.compare_faces([self.__face_example_encoding], encoding)[0]:
                 continue
             img = cv2.imread(src_path)
@@ -68,7 +67,6 @@ class FaceAnimator():
         remaped_mask = np.repeat(np.expand_dims(remaped_mask, axis=2), 3, axis=2) # H x W -> H x W x C
         return remaped_img, remaped_mask
 
-    # 
     def __add_teeth(self, img, landmarks):
         teeth = cv2.resize(self.__teeth, dsize=(img.shape[1],img.shape[0]))
         # transform teeth image to match mouth position of face in original image

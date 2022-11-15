@@ -115,7 +115,7 @@ class FaceLandmarksList():
         if exclude_boudary:
             vectors[[127,162,21,54,103,67,109,10,338,297,332,284,251,389,368,264,356,447,454,366,323,401,361,435,288,367,397,364,365,394,379,378,400,377,152,148,176,149,150,169,136,135,172,138,58,215,177,132,137,93,227,234,34]] = 0
         # apply translation to normalized landmarks
-        landmarks = self.__get_normalized()
+        landmarks = self.get_normalized()
         landmarks += vectors
         # move certain landmarks that tends to overlap and cause interpolation problem 
         for u,l in [(398,381),(384,380),(385,380),(385,374),(386,374),(386,373),(387,373),(387,390),(388,249)]:
