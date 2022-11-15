@@ -6,20 +6,10 @@ This is the semestral project I worked on within the _Open Source Software_ cour
 
 Here you can see an example of an input image and a final animation. You can find more examples in the `/examples` folder.
 
-<style>
-table {
-  border-spacing: 0px;
-}
-th, td {
-  padding: 0px;
-}
-</style>
-
-<table border=0>
-  <tr>
-    <td><img src="https://plus.rozhlas.cz/sites/default/files/styles/cro_16x9_tablet/public/images/b511ee7b9276eb0d403949cfca7abdc1.jpg"></td>
-    <td><img src="examples/1.png"></td>
-    
+<table style="border-spacing: 0px; border:0px;">
+  <tr style="padding: 0px;">
+    <td style="padding: 0px;"><img src="https://plus.rozhlas.cz/sites/default/files/styles/cro_16x9_tablet/public/images/b511ee7b9276eb0d403949cfca7abdc1.jpg"></td>
+    <td style="padding: 0px;"><img src="examples/1.png"></td>
   </tr>
  </table>
 
