@@ -22,7 +22,7 @@ def get_argument(name, default=None):
             print("You have to specify '" + name + "' parameter."), exit(0)
         return default
 
-port = get_argument("--port") 
+port = int(get_argument("--port"))
 face_example = get_argument("--face_example", default="assets/zeman.jpg")
 motion_vectors = get_argument("--motion_vectors", default="assets/wink.npy")
 

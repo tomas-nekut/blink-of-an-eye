@@ -1,3 +1,4 @@
+import os
 from base64 import encode
 import cv2
 from scipy import interpolate
@@ -10,7 +11,7 @@ from PIL import Image
 class FaceAnimator():
     def __init__(self, face_example, motion_vectors, teeth="teeth.jpg", frame_rate=8):
         self.__face_example_encoding = fr.face_encodings(fr.load_image_file(face_example))[0]
-        self.__teeth = cv2.cvtColor(cv2.imread(teeth), cv2.COLOR_BGR2RGB)
+        self.__teeth = cv2.cvtColor(cv2.imread(os.path.join(__package__,"teeth.jpg")), cv2.COLOR_BGR2RGB)
         self.__motion_vectors = np.load(motion_vectors)
         self.__frame_rate = frame_rate
         self.__face_landmarks_detector = FaceLandmarksDetector()
