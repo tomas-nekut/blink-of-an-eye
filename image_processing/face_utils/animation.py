@@ -1,3 +1,22 @@
+# In the wink of an eye
+# an extension for Google Chrome that makes images of 
+# Czech president Miloš Zeman more realistic
+#
+# Copyright (C) 2022 Tomáš Nekut
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You received a copy of the GNU General Public License
+# along with this program or you can find it at <https://www.gnu.org/licenses/>.
+
 import os
 from base64 import encode
 import cv2
@@ -16,7 +35,7 @@ class FaceAnimator():
         self.__frame_rate = frame_rate
         self.__face_landmarks_detector = FaceLandmarksDetector()
 
-    # gets src_path to an image, perform animation and saves animated image to dst_path
+    # gets image from src_path, perform animation and saves animated image to dst_path
     # return True if any animation was possible in source image
     def process(self, src_path, dst_path):
         # detect faces, find face for animation (same id as given face example) and animate it
@@ -132,7 +151,6 @@ class FaceAnimator():
     def __animate_image(self, img):
         landmarks = self.__face_landmarks_detector.process(img)
         background = self.__add_teeth(img, landmarks)
-        #kernel = np.ones((3,3),np.float32)/9
         frames = []
         for vectors in tqdm(self.__motion_vectors[::int(24/self.__frame_rate)]):
             translated_landmarks = landmarks.translate(vectors)
@@ -146,7 +164,6 @@ class FaceAnimator():
                 + background * left_eye_mask    \
                 + background * right_eye_mask * self.__get_right_eye_opacity(translated_landmarks) \
                 + background * mouth_mask * self.__get_mouth_opacity(translated_landmarks)
-            #result = cv2.filter2D(result,-1,kernel)
             frames.append(result)   
         return frames
 

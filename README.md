@@ -4,7 +4,7 @@
 
 This is the semestral project I worked on within the _Open Source Software_ course at _Seoul National University of Science and Technology_ under professor _Sunglok Choi, Ph.D._. The source code of this project includes the extension itself and a web application written in Python responsible for all image-processing.
 
-Here you can see an example of an input image and a final animation. You can find more examples in the `/examples` folder.
+Here you can see an example of an input image and a final animation. You can find more animated images in the `/examples` folder.
 
 <p>
     <img src="https://plus.rozhlas.cz/sites/default/files/styles/cro_16x9_tablet/public/images/b511ee7b9276eb0d403949cfca7abdc1.jpg" width="48%">
