@@ -1,0 +1,9 @@
+numpy
+mediapipe
+scipy
+forbiddenfruit
+face_recognition
+tqdm
+pillow
+fastapi
+asyncio
