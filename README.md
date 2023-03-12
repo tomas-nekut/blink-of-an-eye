@@ -51,7 +51,7 @@ If you would like to experiment you can animate a different person instead of Ze
 
 You can even change the facial expression by providing a path to motion-vectors file using `--motion_vectors` parameter. To extract motion vectors from your video, use the `/image_processing/motion_vectors_extraction.py`. You can run the script like this `python motion_vectors_extraction.py --dst <dst_path> --videos <video_path_1> [<weight_1>] [<video_path_2> [<weight_2>] ...]`. You can specify as many videos as you want. Motion vectors will be extracted from each of them and added together weighted by a given weight resulting in a blend of all expressions from all videos. The default weight is `1`.
 
-Motion-vectors file `/image_processing/assests/wink.npy` was made out of 2 videos `/image_processing/assests/videos/1.mp4` (the wink) weighted by `1.2` and `/image_processing/assests/videos/2.mp4` (the smile) weighted by `0.8`. These are a scene from the _Oru Adaar Love_ movie and a part of an educational video on facial expressions by [_Management Development International_](https://www.mdi-training.com/) respectively. 
+Motion-vectors file `/image_processing/assests/wink.npy` was made out of 2 videos `/image_processing/assets/videos/1.mp4` (the wink) weighted by `1.2` and `/image_processing/assets/videos/2.mp4` (the smile) weighted by `0.8`. These are a scene from the _Oru Adaar Love_ movie and a part of an educational video on facial expressions by [_Management Development International_](https://www.mdi-training.com/) respectively. 
 
 ---
 
