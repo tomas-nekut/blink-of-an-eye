@@ -1,6 +1,6 @@
 ## In the wink of an eye
 
-**In the wink of an eye** is an extension for Google Chrome that makes images of Czech president Miloš Zeman more realistic. If you browse the Internet with this extension installed and activated, every face of Zeman appearing in any image on any website will be automatically animated so that he will wink and smile at you. Isn’t it great?
+**In the wink of an eye** is an extension for Google Chrome that makes images of former Czech president Miloš Zeman more realistic. If you browse the Internet with this extension installed and activated, every face of Zeman appearing in any image on any website will be automatically animated so that he will wink and smile at you. Isn’t it great?
 
 This is the semestral project I worked on within the _Open Source Software_ course at _Seoul National University of Science and Technology_ under professor _Sunglok Choi, Ph.D._. The source code of this project includes the extension itself and a web application written in Python responsible for all image-processing.
 
